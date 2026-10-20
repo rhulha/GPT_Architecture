@@ -5,8 +5,11 @@ const $ = (id) => document.getElementById(id);
 let path = [{ view: 'model', arg: null, label: 'GPT' }];
 
 const render = () => {
-  const { viewBox, svg } = views[path.at(-1).view](path.at(-1).arg);
+  const { viewBox, svg, scroll } = views[path.at(-1).view](path.at(-1).arg);
+  const [, , vw, vh] = viewBox.split(' ');
   $('stage').setAttribute('viewBox', viewBox);
+  $('stage').style.cssText = scroll ? `width:${vw}px;height:${vh}px;display:block;margin:0 auto` : '';
+  $('stage').parentElement.classList.toggle('scroll', !!scroll);
   $('stage').innerHTML = svg;
   $('crumbs').innerHTML = path
     .map((p, i) => `<button data-i="${i}" ${i === path.length - 1 ? 'disabled' : ''}>${p.label}</button>`)

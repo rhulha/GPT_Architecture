@@ -146,40 +146,40 @@ const head = () => {
   return { viewBox: '60 0 1020 1450', svg: s + '</g>' };
 };
 
-const dim = (v) => Math.min(460, Math.max(60, (Number(v) || 65) * 0.3));
-
-const cells = (x, y, w, h) =>
-  `<rect class="matrix" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>` +
-  `<rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" fill="url(#cells)"/>`;
+const weightImage = (w, h) => {
+  const cv = document.createElement('canvas');
+  cv.width = w;
+  cv.height = h;
+  const ctx = cv.getContext('2d');
+  const img = ctx.createImageData(w, h);
+  const [r0, g0, b0] = [0x2b, 0x28, 0x42], [r1, g1, b1] = [0x92, 0x83, 0xe0];
+  let seed = 1337;
+  const rnd = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let k = 0; k < w * h; k++) {
+    const v = (rnd() + rnd()) / 2;
+    img.data.set([r0 + (r1 - r0) * v, g0 + (g1 - g0) * v, b0 + (b1 - b0) * v, 255], k * 4);
+  }
+  ctx.putImageData(img, 0, 0);
+  return cv.toDataURL();
+};
 
 const linear = (arg) => {
-  const [i, o, bias] = arg.split(',');
-  const wIn = dim(i), wOut = dim(o), H = 160, gap = 80, pad = 50;
-  const hMax = Math.max(H, wIn), cy = 110 + hMax / 2;
-  const parts = [
-    { w: wIn, h: H, name: 'x', dims: `T × ${i}` },
-    { op: '×' },
-    { w: wOut, h: wIn, name: 'weight matrix W', dims: `${i} × ${o}` },
-    ...(bias === '1' ? [{ op: '+' }, { w: wOut, h: 20, name: 'bias b', dims: `1 × ${o}` }] : []),
-    { op: '=' },
-    { w: wOut, h: H, name: 'y', dims: `T × ${o}` },
-  ];
-  let s = `<defs><pattern id="cells" width="20" height="20" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="18" height="18" rx="3" fill="#6f62ab"/></pattern></defs><g class="big">`;
-  let x = pad;
-  for (const p of parts) {
-    if (p.op) {
-      s += text(x + gap / 2, cy, p.op, 'title');
-      x += gap;
-      continue;
-    }
-    s += cells(x, cy - p.h / 2, p.w, p.h);
-    s += text(x + p.w / 2, cy - p.h / 2 - 24, p.name, 'title');
-    s += text(x + p.w / 2, cy + p.h / 2 + 28, p.dims, 'sub teal');
-    x += p.w;
-  }
-  const bottom = cy + hMax / 2 + 100;
-  s += text((x + pad) / 2, bottom, bias === '1' ? 'y = x · W + b     (b is added to every row)' : 'y = x · W     (no bias)', 'title');
-  return { viewBox: `0 0 ${x + pad} ${bottom + 40}`, svg: s + '</g>' };
+  const [i, o] = arg.split(',');
+  const nIn = Number(i) || 384, nOut = Number(o) || 65;
+  const total = Math.max(nOut + 220, 760), x = (total - nOut) / 2, y = 90;
+  const outLabel = `${nOut} outputs` + (Number.isNaN(Number(o)) ? ' (vocab_size)' : '');
+  let s = '<g class="big">';
+  s += `<rect class="matrix" x="${x - 3}" y="${y - 3}" width="${nOut + 6}" height="${nIn + 6}" rx="3"/>`;
+  s += `<image href="${weightImage(nOut, nIn)}" x="${x}" y="${y}" width="${nOut}" height="${nIn}" style="image-rendering: pixelated"/>`;
+  s += text(x + nOut / 2, y - 30, outLabel, 'title');
+  s += rot(x - 40, y + nIn / 2, -90, 'title', `${nIn} inputs`);
+  s += text(x + nOut / 2, y + nIn + 40, `weight matrix W: ${nIn} × ${nOut} learned numbers, one pixel each`, 'sub teal');
+  return { viewBox: `0 0 ${total} ${y + nIn + 80}`, svg: s + '</g>', scroll: true };
 };
 
 export const views = { model, block, mha, ffwd, head, linear };

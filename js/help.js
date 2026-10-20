@@ -92,4 +92,10 @@ export const help = {
     'It also lets the training signal flow straight through all 6 blocks, which makes deep networks much easier to train.',
     'Every block has two of them: one around attention and one around the feed-forward network.',
   ],
+  'proj': [
+    'proj mixes the results of the 6 heads. Each head produced 64 numbers, so after concatenation there are 384 numbers per token, and this Linear layer (384 → 384) combines them into one new vector.',
+    'Without it, the heads would stay in separate slots of the vector and never interact.',
+    'The output has the same size as the input, so it can be added back to the residual stream.',
+    'Click to see its weight matrix.',
+  ],
 };

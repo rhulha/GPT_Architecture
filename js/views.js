@@ -65,7 +65,7 @@ const mha = () => {
   }
   s += box({ x: x0, y: 300, w: total, h: 50, title: 'concat', sub: `${c.nHead} × ${c.headSize} = ${c.nEmbd}` });
   s += arrow(cx, 350, cx, 390);
-  s += box({ x: cx - 200, y: 390, w: 400, h: 50, kind: 'op', title: 'proj', sub: 'Linear 384 → 384', go: ['linear', '384,384,1', 'proj'] });
+  s += box({ x: cx - 200, y: 390, w: 400, h: 50, kind: 'op', title: 'proj', sub: 'Linear 384 → 384', go: ['linear', '384,384,1', 'proj'], help: 'proj' });
   s += arrow(cx, 440, cx, 470);
   s += box({ x: cx - 200, y: 470, w: 400, h: 50, title: 'output', sub: '(T, 384)' });
   return { viewBox: '0 0 900 540', svg: s };

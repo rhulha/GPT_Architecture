@@ -216,3 +216,52 @@ main.scroll {
 .residual { fill: none; stroke: var(--cyan); stroke-width: 4; }
 .residual-head { fill: var(--cyan); }
 .hit { fill: none; stroke: transparent; stroke-width: 28; pointer-events: stroke; }
+
+#crumbs a {
+  border: 1px solid var(--purple-line);
+  border-radius: 6px;
+  color: var(--lavender);
+  padding: 4px 10px;
+  text-decoration: none;
+}
+
+#crumbs a:hover { border-color: var(--cyan); color: var(--text); }
+#crumbs a.current { color: var(--text); border-color: var(--cyan); }
+
+main.page {
+  overflow: auto;
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+main.page h1 { font-size: 22px; margin: 8px 0 16px; }
+main.page p { color: var(--lavender); line-height: 1.5; max-width: 760px; }
+
+.table-wrap { overflow-x: auto; }
+
+#compare {
+  border-collapse: collapse;
+  min-width: 100%;
+}
+
+#compare th, #compare td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--slate);
+  text-align: left;
+  vertical-align: top;
+  min-width: 130px;
+}
+
+#compare thead th { color: var(--text); border-bottom: 2px solid var(--purple-line); }
+#compare tbody th { color: var(--lavender); font-weight: 600; min-width: 170px; position: sticky; left: 0; background: var(--bg); }
+#compare td { color: var(--text); }
+#compare .mine { background: var(--purple); }
+#compare thead th.mine { color: var(--cyan); }
+
+@media (max-width: 600px) {
+  #compare { font-size: 13px; }
+  #compare th, #compare td { padding: 8px 8px; min-width: 100px; }
+  #compare tbody th { min-width: 96px; }
+  main.page h1 { font-size: 18px; }
+}

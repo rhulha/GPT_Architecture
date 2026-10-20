@@ -3,6 +3,7 @@ export const config = {
   nHead: 6,
   nLayer: 6,
   blockSize: 256,
+  vocabSize: 65,
 };
 
 config.headSize = config.nEmbd / config.nHead;

@@ -1,5 +1,5 @@
 import { config as c } from './config.js';
-import { box, trap, circle, arrow, path, text } from './svg.js';
+import { box, trap, circle, arrow, text } from './svg.js';
 
 const model = () => {
   const cx = 400, bw = 360, bx = cx - bw / 2;
@@ -37,7 +37,7 @@ const block = () => {
   s += arrow(cx, 70, cx, 110);
   s += box({ x: bx, y: 110, w, h: 48, kind: 'op', title: 'ln1', sub: 'LayerNorm', go: ['layernorm', null, 'ln1'], help: 'LayerNorm' });
   s += arrow(cx, 158, cx, 200);
-  s += box({ x: bx, y: 200, w, h: 60, kind: 'op', title: 'MultiHeadAttention', sub: `${c.nHead} heads`, go: ['mha', null, 'MultiHeadAttention'] });
+  s += box({ x: bx, y: 200, w, h: 60, kind: 'op', title: 'MultiHeadAttention', sub: `${c.nHead} heads`, go: ['mha', null, 'MultiHeadAttention'], help: 'MultiHeadAttention' });
   s += arrow(cx, 260, cx, 302);
   s += circle(cx, 320, '+');
   s += residual(90, 320);
@@ -60,10 +60,10 @@ const mha = () => {
   for (let i = 0; i < c.nHead; i++) {
     const x = x0 + i * (hw + gap), hc = x + hw / 2;
     s += arrow(cx, 70, hc, 150);
-    s += box({ x, y: 150, w: hw, h: 70, kind: 'op', title: `Head ${i + 1}`, sub: `T × ${c.headSize}`, go: ['head', i, `Head ${i + 1}`] });
+    s += box({ x, y: 150, w: hw, h: 70, kind: 'op', title: `Head ${i + 1}`, sub: `T × ${c.headSize}`, go: ['head', i, `Head ${i + 1}`], help: 'Head' });
     s += arrow(hc, 220, cx, 300);
   }
-  s += box({ x: x0, y: 300, w: total, h: 50, title: 'concat', sub: `${c.nHead} × ${c.headSize} = ${c.nEmbd}` });
+  s += box({ x: x0, y: 300, w: total, h: 50, title: 'concat', sub: `${c.nHead} × ${c.headSize} = ${c.nEmbd}`, help: 'concat' });
   s += arrow(cx, 350, cx, 390);
   s += box({ x: cx - 200, y: 390, w: 400, h: 50, kind: 'op', title: 'proj', sub: 'Linear 384 → 384', go: ['linear', '384,384,1', 'proj'], help: 'proj' });
   s += arrow(cx, 440, cx, 470);
@@ -104,47 +104,57 @@ const head = () => {
   const cx = 570, mx = 400, m1y = 332, m2y = 860, hs = c.headSize, e = c.nEmbd;
   let s = '<g class="big">';
 
+  s += '<g data-help="T embeddings">';
   s += `<rect class="data" x="250" y="30" width="640" height="70" rx="12"/>`;
   s += text(cx, 56, 'T embeddings', 'title') + text(cx, 84, `each ${e} numbers`, 'sub');
-  s += `<g class="link" data-view="linear" data-arg="${e},${hs},0" data-label="Key matrix">`;
-  s += arrow(cx, 100, cx, 118);
-  s += poly([[250, 120], [890, 120], [740, 270], [400, 270]]);
   s += '</g>';
+  s += arrow(cx, 100, cx, 118);
+  s += `<g class="link" data-help="simple matrix" data-view="linear" data-arg="${e},${hs},0" data-label="Key matrix">`;
+  s += poly([[250, 120], [890, 120], [740, 270], [400, 270]]);
   s += text(cx, 168, 'key matrix', 'title') + text(cx, 200, `${e} → ${hs}`, 'sub') + text(cx, 232, `T times ${hs} values`, 'sub teal');
+  s += '</g>';
   s += `<rect class="cyan-box" x="${mx}" y="280" width="340" height="40"/>`;
   s += text(cx, 300, 'key vector', 'sub cyan-text');
 
+  s += '<g data-help="attention weights">';
   s += triMatrix(mx, m1y);
   s += text(cx, 706, 'attention weights', 'title');
   s += text(cx, 738, 'q•k = TxT → mask → softmax', 'sub');
+  s += '</g>';
 
   s += `<rect class="cyan-box" x="752" y="${m1y}" width="40" height="340"/>`;
   s += rot(772, 502, 90, 'sub cyan-text', 'query vector');
-  s += `<g class="link" data-view="linear" data-arg="${e},${hs},0" data-label="Query matrix">`;
+  s += `<g class="link" data-help="simple matrix" data-view="linear" data-arg="${e},${hs},0" data-label="Query matrix">`;
   s += poly([[804, 332], [954, 182], [954, 822], [804, 672]]);
   s += text(889, 440, 'query', 'title') + text(889, 472, 'matrix', 'title') + text(889, 506, `${e} → ${hs}`, 'sub');
   s += text(889, 556, 'T times', 'sub teal') + text(889, 584, `${hs} values`, 'sub teal');
   s += '</g>';
   s += arrow(984, 502, 956, 502);
+  s += '<g data-help="T embeddings">';
   s += `<rect class="data" x="984" y="182" width="70" height="640" rx="12"/>`;
   s += rot(1030, 502, 90, 'title', 'T embeddings') + rot(1004, 502, 90, 'sub', `each ${e} numbers`);
+  s += '</g>';
 
   s += arrow(cx, 770, cx, 840);
 
   s += `<rect class="cyan-box" x="348" y="${m2y}" width="40" height="340"/>`;
   s += rot(368, 1030, 90, 'sub cyan-text', 'value vector');
-  s += `<g class="link" data-view="linear" data-arg="${e},${hs},0" data-label="Value matrix">`;
+  s += `<g class="link" data-help="simple matrix" data-view="linear" data-arg="${e},${hs},0" data-label="Value matrix">`;
   s += poly([[336, 860], [186, 710], [186, 1350], [336, 1200]]);
   s += text(251, 968, 'value', 'title') + text(251, 1000, 'matrix', 'title') + text(251, 1034, `${e} → ${hs}`, 'sub');
   s += text(251, 1084, 'T times', 'sub teal') + text(251, 1112, `${hs} values`, 'sub teal');
   s += '</g>';
   s += arrow(156, 1030, 184, 1030);
+  s += '<g data-help="T embeddings">';
   s += `<rect class="data" x="86" y="710" width="70" height="640" rx="12"/>`;
   s += rot(132, 1030, -90, 'title', 'T embeddings') + rot(106, 1030, -90, 'sub', `each ${e} numbers`);
+  s += '</g>';
 
+  s += '<g data-help="attention output">';
   s += triMatrix(mx, m2y);
-  s += text(cx, 1234, 'weights @ v', 'title');
+  s += text(cx, 1234, 'weights • v', 'title');
   s += text(cx, 1266, 'attention matrix multiplication', 'sub teal') + text(cx, 1294, 'with value vector', 'sub teal');
+  s += '</g>';
   s += arrow(cx, 1308, cx, 1338);
 
   s += `<rect class="data" x="${mx}" y="1340" width="340" height="80" rx="12"/>`;

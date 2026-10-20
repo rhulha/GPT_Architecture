@@ -96,6 +96,38 @@ export const help = {
     'proj mixes the results of the 6 heads. Each head produced 64 numbers, so after concatenation there are 384 numbers per token, and this Linear layer (384 → 384) combines them into one new vector.',
     'Without it, the heads would stay in separate slots of the vector and never interact.',
     'The output has the same size as the input, so it can be added back to the residual stream.',
+    "Facts seem to live elsewhere. Studies point mainly at the feed-forward layers, which hold about two thirds of the parameters. Attention is better described as the part that moves information between tokens.",
     'Click to see its weight matrix.',
+  ],
+  'concat': [
+    'The 6 heads each produce 64 numbers per token. Concatenation simply places them side by side to form one vector of 6 × 64 = 384 numbers.',
+    'No calculation happens here. proj, the next step, mixes the heads together.',
+  ],
+  'Head': [
+    'One attention head. For each token it asks a question (the query), compares it with the keys of the tokens before it, and collects a weighted mix of their values.',
+    'The 6 heads work in parallel. Each has its own weights, so each can learn to look for something different. Each produces 64 numbers per token.',
+    'Click to look inside.',
+  ],
+  'MultiHeadAttention': [
+    'Self-attention lets every token look at the tokens before it and pull in information from them. It is the only place where the tokens communicate with each other.',
+    'It runs 6 heads in parallel, each looking for something different, then combines their results with proj.',
+    'Click to look inside.',
+  ],
+  'simple matrix': [
+    "Just a simple matrix.",
+    "It doesn't get simpler than this.",
+  ],
+  'T embeddings': [
+    'T is the number of tokens in this run. The more tokens the larger the attention matrix gets.',
+    'This can become a huge headache for language models that want to allow large context windows and this is an area where a lot of research is being spent.',
+  ],
+  'attention weights': [
+    'A simple matrix multiplication of the query and key vector lists (one vector per token) almost results in the famous attention matrix. To get there, we just need to divide every value by the square root of the head size before applying a triangle mask that hides later tokens and a softmax per row.',
+    'Here is the famous formula:',
+    'Attention(Q, K, V) = softmax(Q Kᵀ / √d_k) V',
+    'Q, K and V are the query, key and value matrices, where one dimension is the number of tokens T and the other dimension is 64 (embeding dimensions/number of heads(6)) and d_k is the head size, 64.',
+  ],
+  'attention output': [
+    'Next we multiply the attention matrix with the value vector, letting the attention weights influence the values for each embedding.',
   ],
 };

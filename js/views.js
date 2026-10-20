@@ -18,7 +18,7 @@ const model = () => {
   s += arrow(cx, 625, cx, 655);
   s += box({ x: bx, y: 655, w: bw, h: 48, kind: 'op', title: 'ln_f', sub: 'final LayerNorm' });
   s += arrow(cx, 703, cx, 735);
-  s += box({ x: bx, y: 735, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size', go: ['linear', '384,vocab_size,1', 'lm_head'] });
+  s += box({ x: bx, y: 735, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size', go: ['linear', '384,vocab_size,1', 'lm_head'], help: 'lm_head' });
   s += arrow(cx, 783, cx, 815);
   s += box({ x: bx, y: 815, w: bw, h: 50, title: 'logits', sub: '(T, vocab_size)' });
   return { viewBox: '0 0 800 885', svg: s };

@@ -172,3 +172,30 @@ main.scroll {
 .big .note {
   font-size: 24px;
 }
+#tip {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  max-width: 340px;
+  padding: 10px 14px;
+  background: var(--slate);
+  border: 1px solid var(--purple-line);
+  border-radius: 8px;
+  font-size: 15px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+#tip p { margin: 0 0 8px; }
+#tip p:last-child { margin-bottom: 0; }
+#tip .hint { color: var(--teal); }
+
+#tip.sheet {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: auto;
+  max-width: none;
+  border-radius: 12px 12px 0 0;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom));
+}

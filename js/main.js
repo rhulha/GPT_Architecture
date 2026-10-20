@@ -1,10 +1,39 @@
 import { views } from './views.js';
+import { help } from './help.js';
 
 const $ = (id) => document.getElementById(id);
+const ga = (el, n, cb) => $(el).addEventListener(n, cb);
+
+const touch = matchMedia('(hover: none)');
 
 let path = [{ view: 'model', arg: null, label: 'GPT' }];
+let armed = null;
+
+const hideTip = () => {
+  $('tip').style.display = 'none';
+  armed = null;
+};
+
+const showTip = (el) => {
+  const tip = $('tip');
+  tip.replaceChildren(...help[el.dataset.help].map((t) => Object.assign(document.createElement('p'), { textContent: t })));
+  if (touch.matches && el.classList.contains('link')) {
+    tip.append(Object.assign(document.createElement('p'), { textContent: 'Tap again to zoom in.', className: 'hint' }));
+  }
+  tip.classList.toggle('sheet', touch.matches);
+  tip.style.display = 'block';
+};
+
+const moveTip = (e) => {
+  const tip = $('tip');
+  const x = Math.min(e.clientX + 16, innerWidth - tip.offsetWidth - 8);
+  const below = e.clientY + 16 + tip.offsetHeight < innerHeight;
+  tip.style.left = `${Math.max(8, x)}px`;
+  tip.style.top = `${below ? e.clientY + 16 : e.clientY - 16 - tip.offsetHeight}px`;
+};
 
 const render = () => {
+  hideTip();
   const { viewBox, svg, scroll } = views[path.at(-1).view](path.at(-1).arg);
   const [, , vw, vh] = viewBox.split(' ');
   $('stage').setAttribute('viewBox', viewBox);
@@ -16,14 +45,35 @@ const render = () => {
     .join('<span class="sep">›</span>');
 };
 
-$('stage').addEventListener('click', (e) => {
-  const g = e.target.closest('.link');
-  if (!g) return;
-  path.push({ view: g.dataset.view, arg: g.dataset.arg, label: g.dataset.label });
+ga('stage', 'mousemove', (e) => {
+  if (touch.matches) return;
+  const el = e.target.closest('[data-help]');
+  if (!el) return hideTip();
+  if ($('tip').style.display !== 'block' || armed !== el) {
+    armed = el;
+    showTip(el);
+  }
+  moveTip(e);
+});
+
+ga('stage', 'mouseleave', () => {
+  if (!touch.matches) hideTip();
+});
+
+ga('stage', 'click', (e) => {
+  const el = e.target.closest('[data-help], .link');
+  if (!el) return hideTip();
+  if (touch.matches && el.dataset.help && armed !== el) {
+    showTip(el);
+    armed = el;
+    return;
+  }
+  if (!el.classList.contains('link')) return;
+  path.push({ view: el.dataset.view, arg: el.dataset.arg, label: el.dataset.label });
   render();
 });
 
-$('crumbs').addEventListener('click', (e) => {
+ga('crumbs', 'click', (e) => {
   const b = e.target.closest('button');
   if (!b) return;
   path = path.slice(0, +b.dataset.i + 1);

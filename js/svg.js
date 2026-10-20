@@ -4,15 +4,16 @@ const lines = (cx, cy, title, sub) => {
     (sub ? `<text class="sub" x="${cx}" y="${cy + 14}">${sub}</text>` : '');
 };
 
-const wrap = (go, inner) => {
-  if (!go) return `<g>${inner}</g>`;
+const wrap = (go, inner, help) => {
+  const h = help ? ` data-help="${help}"` : '';
+  if (!go) return `<g${h}>${inner}</g>`;
   const [view, arg, label] = go;
-  return `<g class="link" data-view="${view}" data-arg="${arg ?? ''}" data-label="${label}">${inner}</g>`;
+  return `<g class="link"${h} data-view="${view}" data-arg="${arg ?? ''}" data-label="${label}">${inner}</g>`;
 };
 
-export const box = ({ x, y, w, h, title, sub, kind = 'data', go }) =>
+export const box = ({ x, y, w, h, title, sub, kind = 'data', go, help }) =>
   wrap(go, `<rect class="${kind}" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>` +
-    lines(x + w / 2, y + h / 2, title, sub));
+    lines(x + w / 2, y + h / 2, title, sub), help);
 
 export const trap = ({ x, y, topW, botW, h, title, sub, kind = 'op', go }) => {
   const cx = x + Math.max(topW, botW) / 2;

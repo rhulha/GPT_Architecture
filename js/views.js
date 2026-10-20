@@ -3,24 +3,24 @@ import { box, trap, circle, arrow, path, text } from './svg.js';
 
 const model = () => {
   const cx = 400, bw = 360, bx = cx - bw / 2;
-  let s = box({ x: bx, y: 20, w: bw, h: 50, title: 'token indices', sub: '(T)' });
+  let s = box({ x: bx, y: 20, w: bw, h: 50, title: 'token indices', sub: '(T)', help: 'token indices' });
   s += arrow(cx, 70, 290, 110) + arrow(cx, 70, 550, 110);
-  s += box({ x: 110, y: 110, w: 270, h: 64, kind: 'op', title: 'token embedding', sub: 'vocab_size → 384' });
-  s += box({ x: 420, y: 110, w: 270, h: 64, kind: 'op', title: 'position embedding', sub: '256 → 384' });
+  s += box({ x: 110, y: 110, w: 270, h: 64, kind: 'op', title: 'token embedding', sub: 'vocab_size → 384', help: 'token embedding' });
+  s += box({ x: 420, y: 110, w: 270, h: 64, kind: 'op', title: 'position embedding', sub: '256 → 384', help: 'position embedding' });
   s += arrow(245, 174, 385, 210) + arrow(555, 174, 415, 210);
-  s += circle(cx, 225, '+');
+  s += circle(cx, 225, '+', '+ (add)');
   s += arrow(cx, 243, cx, 265);
   for (let i = 0; i < c.nLayer; i++) {
     const y = 265 + i * 62;
-    s += box({ x: bx, y, w: bw, h: 48, kind: 'op', title: `Block ${i + 1}`, sub: 'self-attention + feed-forward', go: ['block', i, `Block ${i + 1}`] });
+    s += box({ x: bx, y, w: bw, h: 48, kind: 'op', title: `Block ${i + 1}`, sub: 'self-attention + feed-forward', go: ['block', i, `Block ${i + 1}`], help: 'Block 1 to Block 6' });
     if (i < c.nLayer - 1) s += arrow(cx, y + 48, cx, y + 62);
   }
   s += arrow(cx, 625, cx, 655);
-  s += box({ x: bx, y: 655, w: bw, h: 48, kind: 'op', title: 'ln_f', sub: 'final LayerNorm' });
+  s += box({ x: bx, y: 655, w: bw, h: 48, kind: 'op', title: 'ln_f', sub: 'final LayerNorm', go: ['layernorm', null, 'ln_f'], help: 'ln_f' });
   s += arrow(cx, 703, cx, 735);
   s += box({ x: bx, y: 735, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size', go: ['linear', '384,vocab_size,1', 'lm_head'], help: 'lm_head' });
   s += arrow(cx, 783, cx, 815);
-  s += box({ x: bx, y: 815, w: bw, h: 50, title: 'logits', sub: '(T, vocab_size)' });
+  s += box({ x: bx, y: 815, w: bw, h: 50, title: 'logits', sub: '(T, vocab_size)', help: 'logits' });
   return { viewBox: '0 0 800 885', svg: s };
 };
 
@@ -28,16 +28,16 @@ const block = () => {
   const cx = 420, w = 300, bx = cx - w / 2, rx = 180;
   let s = box({ x: bx, y: 20, w, h: 50, title: 'x', sub: '(T, 384)' });
   s += arrow(cx, 70, cx, 110);
-  s += box({ x: bx, y: 110, w, h: 48, kind: 'op', title: 'ln1', sub: 'LayerNorm' });
+  s += box({ x: bx, y: 110, w, h: 48, kind: 'op', title: 'ln1', sub: 'LayerNorm', go: ['layernorm', null, 'ln1'], help: 'LayerNorm' });
   s += arrow(cx, 158, cx, 200);
   s += box({ x: bx, y: 200, w, h: 60, kind: 'op', title: 'MultiHeadAttention', sub: `${c.nHead} heads`, go: ['mha', null, 'MultiHeadAttention'] });
   s += arrow(cx, 260, cx, 302);
   s += circle(cx, 320, '+');
   s += path(`M${cx} 90 H${rx} V320 H${cx - 18}`) + arrow(rx, 320, cx - 18, 320);
   s += arrow(cx, 338, cx, 380);
-  s += box({ x: bx, y: 380, w, h: 48, kind: 'op', title: 'ln2', sub: 'LayerNorm' });
+  s += box({ x: bx, y: 380, w, h: 48, kind: 'op', title: 'ln2', sub: 'LayerNorm', go: ['layernorm', null, 'ln2'], help: 'LayerNorm' });
   s += arrow(cx, 428, cx, 470);
-  s += box({ x: bx, y: 470, w, h: 60, kind: 'op', title: 'FeedForward', sub: `384 → ${c.ffHidden} → 384`, go: ['ffwd', null, 'FeedForward'] });
+  s += box({ x: bx, y: 470, w, h: 60, kind: 'op', title: 'FeedForward', sub: `384 → ${c.ffHidden} → 384`, go: ['ffwd', null, 'FeedForward'], help: 'FeedForward' });
   s += arrow(cx, 530, cx, 572);
   s += circle(cx, 590, '+');
   s += path(`M${cx} 355 H${rx} V590 H${cx - 18}`) + arrow(rx, 590, cx - 18, 590);
@@ -69,11 +69,11 @@ const ffwd = () => {
   const cx = 400;
   let s = box({ x: cx - 150, y: 20, w: 300, h: 50, title: 'x', sub: '(T, 384)' });
   s += arrow(cx, 70, cx, 100);
-  s += trap({ x: cx - 240, y: 100, topW: 300, botW: 480, h: 90, title: 'Linear', sub: `384 → ${c.ffHidden}`, go: ['linear', `384,${c.ffHidden},1`, 'Linear 1'] });
+  s += trap({ x: cx - 240, y: 100, topW: 300, botW: 480, h: 90, title: 'Linear', sub: `384 → ${c.ffHidden}`, go: ['linear', `384,${c.ffHidden},1`, 'Linear 1'], help: 'ffwd expand' });
   s += arrow(cx, 190, cx, 230);
-  s += box({ x: cx - 240, y: 230, w: 480, h: 48, kind: 'op', title: 'ReLU' });
+  s += box({ x: cx - 240, y: 230, w: 480, h: 48, kind: 'op', title: 'ReLU', help: 'ReLU' });
   s += arrow(cx, 278, cx, 318);
-  s += trap({ x: cx - 240, y: 318, topW: 480, botW: 300, h: 90, title: 'Linear', sub: `${c.ffHidden} → 384`, go: ['linear', `${c.ffHidden},384,1`, 'Linear 2'] });
+  s += trap({ x: cx - 240, y: 318, topW: 480, botW: 300, h: 90, title: 'Linear', sub: `${c.ffHidden} → 384`, go: ['linear', `${c.ffHidden},384,1`, 'Linear 2'], help: 'ffwd shrink' });
   s += arrow(cx, 408, cx, 448);
   s += box({ x: cx - 150, y: 448, w: 300, h: 50, title: 'output', sub: '(T, 384)' });
   return { viewBox: '0 0 800 520', svg: s };
@@ -182,4 +182,80 @@ const linear = (arg) => {
   return { viewBox: `0 0 ${total} ${y + nIn + 80}`, svg: s + '</g>', scroll: true };
 };
 
-export const views = { model, block, mha, ffwd, head, linear };
+const makeRng = (seed) => () => {
+  seed = (seed + 0x6d2b79f5) | 0;
+  let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+};
+
+const gauss = (rnd) => Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(2 * Math.PI * rnd());
+
+const LO = -4, HI = 9;
+
+const barChart = (x, y, w, h, values, { band, line } = {}) => {
+  const unit = h / (HI - LO);
+  const yOf = (v) => y + (HI - Math.min(HI, Math.max(LO, v))) * unit;
+  const y0 = yOf(0), bw = w / values.length;
+  let s = `<rect class="matrix" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>`;
+  if (band) s += `<rect class="band" x="${x}" y="${yOf(band[1])}" width="${w}" height="${(band[1] - band[0]) * unit}"/>`;
+  s += `<line class="zero" x1="${x}" y1="${y0}" x2="${x + w}" y2="${y0}"/>`;
+  s += `<path class="bar" d="${values.map((v, i) => `M${x + i * bw} ${y0}V${yOf(v)}h${bw}V${y0}z`).join('')}"/>`;
+  if (line != null) s += `<line class="meanline" x1="${x}" y1="${yOf(line)}" x2="${x + w}" y2="${yOf(line)}"/>`;
+  return { svg: s, yOf };
+};
+
+const strip = (x, y, w, h, values, lo, hi) => {
+  const cw = w / values.length;
+  let s = `<rect class="matrix" x="${x - 3}" y="${y - 3}" width="${w + 6}" height="${h + 6}" rx="4"/>`;
+  values.forEach((v, i) => {
+    const t = Math.min(1, Math.max(0, (v - lo) / (hi - lo)));
+    const col = `rgb(${Math.round(0x2b + (0x92 - 0x2b) * t)},${Math.round(0x28 + (0x83 - 0x28) * t)},${Math.round(0x42 + (0xe0 - 0x42) * t)})`;
+    s += `<rect x="${x + i * cw}" y="${y}" width="${cw}" height="${h}" fill="${col}"/>`;
+  });
+  return s;
+};
+
+const layernorm = () => {
+  const n = c.nEmbd, cx = 464, x0 = 80, w = 768, hc = 182;
+  const rnd = makeRng(42);
+  const raw = Array.from({ length: n }, () => 3 + 1.8 * gauss(rnd));
+  const mu = raw.reduce((a, b) => a + b, 0) / n;
+  const sigma = Math.sqrt(raw.reduce((a, b) => a + (b - mu) ** 2, 0) / n);
+  const norm = raw.map((v) => (v - mu) / sigma);
+  const gamma = Array.from({ length: n }, () => 1 + 0.25 * gauss(rnd));
+  const beta = Array.from({ length: n }, () => 0.3 * gauss(rnd));
+  const out = norm.map((v, i) => gamma[i] * v + beta[i]);
+  const grp = (key, inner) => `<g data-help="${key}">${inner}</g>`;
+
+  let s = '<defs><pattern id="ln-cells" width="16" height="16" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="14" height="14" rx="3" fill="#6f62ab"/></pattern></defs><g class="big">';
+
+  s += grp('layernorm input',
+    `<rect class="matrix" x="296" y="24" width="336" height="144" rx="8"/>` +
+    `<rect x="304" y="32" width="320" height="128" fill="url(#ln-cells)"/>` +
+    `<rect class="cyan-box" x="300" y="78" width="328" height="20"/>` +
+    text(190, 80, 'x', 'title') + text(190, 112, `T × ${n}`, 'sub teal') +
+    text(790, 66, 'one row = one token', 'sub cyan-text') + text(790, 94, `its ${n} numbers`, 'sub cyan-text') + text(790, 122, 'are normalized on their own', 'sub cyan-text'));
+  s += arrow(cx, 168, cx, 198);
+
+  const c1 = barChart(x0, 228, w, hc, raw, { band: [mu - sigma, mu + sigma], line: mu });
+  s += grp('layernorm raw', text(cx, 214, `x: the ${n} numbers of one token`, 'sub teal') + c1.svg +
+    text(878, c1.yOf(mu), 'μ', 'title cyan-text') + text(878, c1.yOf(0) + 4, '0', 'sub') + text(878, c1.yOf(mu + sigma) - 14, '±σ', 'sub cyan-text'));
+
+  s += arrow(cx, 410, cx, 452);
+  const c2 = barChart(x0, 488, w, hc, norm, { band: [-1, 1] });
+  s += grp('layernorm normalized', text(250, 432, 'μ = average, σ = spread', 'sub') + text(710, 432, 'x̂ = (x − μ) / √(σ² + ε)', 'title') +
+    text(cx, 474, 'x̂: average 0, spread 1', 'sub teal') + c2.svg + text(878, c2.yOf(0), '0', 'sub') + text(878, c2.yOf(1) - 14, '±1', 'sub cyan-text'));
+
+  s += arrow(cx, 670, cx, 702);
+  s += grp('layernorm gamma', text(cx, 724, `γ scale: ${n} learned numbers (start at 1)`, 'sub teal') + strip(x0, 748, w, 24, gamma, 0.4, 1.6));
+  s += grp('layernorm beta', text(cx, 790, `β shift: ${n} learned numbers (start at 0)`, 'sub teal') + strip(x0, 814, w, 24, beta, -0.8, 0.8));
+
+  s += arrow(cx, 844, cx, 874);
+  const c3 = barChart(x0, 904, w, hc, out);
+  s += grp('layernorm output', text(250, 686, 'γ and β are learned', 'sub') + text(710, 686, 'y = γ · x̂ + β', 'title') +
+    text(cx, 890, 'y: the output', 'sub teal') + c3.svg + text(878, c3.yOf(0), '0', 'sub') + text(cx, 1118, `${n} numbers, the same shape as the input`, 'sub teal'));
+  return { viewBox: '0 0 960 1150', svg: s + '</g>' };
+};
+
+export const views = { model, block, mha, ffwd, head, linear, layernorm };

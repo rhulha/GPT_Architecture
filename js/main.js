@@ -48,7 +48,7 @@ const render = () => {
 ga('stage', 'mousemove', (e) => {
   if (touch.matches) return;
   const el = e.target.closest('[data-help]');
-  if (!el) return hideTip();
+  if (!el || !help[el.dataset.help]) return hideTip();
   if ($('tip').style.display !== 'block' || armed !== el) {
     armed = el;
     showTip(el);
@@ -63,7 +63,7 @@ ga('stage', 'mouseleave', () => {
 ga('stage', 'click', (e) => {
   const el = e.target.closest('[data-help], .link');
   if (!el) return hideTip();
-  if (touch.matches && el.dataset.help && armed !== el) {
+  if (touch.matches && help[el.dataset.help] && armed !== el) {
     showTip(el);
     armed = el;
     return;

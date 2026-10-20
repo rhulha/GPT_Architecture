@@ -15,15 +15,15 @@ export const box = ({ x, y, w, h, title, sub, kind = 'data', go, help }) =>
   wrap(go, `<rect class="${kind}" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>` +
     lines(x + w / 2, y + h / 2, title, sub), help);
 
-export const trap = ({ x, y, topW, botW, h, title, sub, kind = 'op', go }) => {
+export const trap = ({ x, y, topW, botW, h, title, sub, kind = 'op', go, help }) => {
   const cx = x + Math.max(topW, botW) / 2;
   const a = cx - topW / 2, b = cx + topW / 2, c = cx - botW / 2, d = cx + botW / 2;
   return wrap(go, `<polygon class="${kind}" points="${a},${y} ${b},${y} ${d},${y + h} ${c},${y + h}"/>` +
-    lines(cx, y + h / 2, title, sub));
+    lines(cx, y + h / 2, title, sub), help);
 };
 
-export const circle = (cx, cy, label) =>
-  `<circle class="op" cx="${cx}" cy="${cy}" r="18"/><text class="title" x="${cx}" y="${cy}">${label}</text>`;
+export const circle = (cx, cy, label, help) =>
+  wrap(null, `<circle class="op" cx="${cx}" cy="${cy}" r="18"/><text class="title" x="${cx}" y="${cy}">${label}</text>`, help);
 
 export const arrow = (x1, y1, x2, y2) => {
   const a = Math.atan2(y2 - y1, x2 - x1), s = 9;

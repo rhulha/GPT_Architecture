@@ -265,3 +265,8 @@ main.page p { color: var(--lavender); line-height: 1.5; max-width: 760px; }
   #compare tbody th { min-width: 96px; }
   main.page h1 { font-size: 18px; }
 }
+
+@media (max-width: 600px) {
+  header { flex-direction: column; align-items: flex-start; padding-right: 0; }
+  header .links { flex-direction: row; flex-wrap: wrap; align-items: flex-start; text-align: left; gap: 2px 14px; padding: 0 16px 8px; font-size: 13px; }
+}

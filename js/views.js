@@ -11,17 +11,17 @@ const model = () => {
   s += circle(cx, 225, '+', '+ (add)');
   s += arrow(cx, 243, cx, 265);
   for (let i = 0; i < c.nLayer; i++) {
-    const y = 265 + i * 62;
-    s += box({ x: bx, y, w: bw, h: 48, kind: 'op', title: `Block ${i + 1}`, sub: 'self-attention + feed-forward', go: ['block', i, `Block ${i + 1}`], help: 'Block 1 to Block 6' });
-    if (i < c.nLayer - 1) s += arrow(cx, y + 48, cx, y + 62);
+    const y = 265 + i * 70;
+    s += box({ x: bx, y, w: bw, h: 58, kind: 'op', title: `Block ${i + 1}`, sub: 'self-attention + feed-forward', go: ['block', i, `Block ${i + 1}`], help: 'Block 1 to Block 6' });
+    if (i < c.nLayer - 1) s += arrow(cx, y + 58, cx, y + 70);
   }
-  s += arrow(cx, 625, cx, 655);
-  s += box({ x: bx, y: 655, w: bw, h: 48, kind: 'op', title: 'ln_f', sub: 'final LayerNorm', go: ['layernorm', null, 'ln_f'], help: 'ln_f' });
-  s += arrow(cx, 703, cx, 735);
-  s += box({ x: bx, y: 735, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size', go: ['linear', '384,vocab_size,1', 'lm_head'], help: 'lm_head' });
-  s += arrow(cx, 783, cx, 815);
-  s += box({ x: bx, y: 815, w: bw, h: 50, title: 'logits', sub: '(T, vocab_size)', help: 'logits' });
-  return { viewBox: '0 0 800 885', svg: s };
+  s += arrow(cx, 673, cx, 703);
+  s += box({ x: bx, y: 703, w: bw, h: 48, kind: 'op', title: 'ln_f', sub: 'final LayerNorm', go: ['layernorm', null, 'ln_f'], help: 'ln_f' });
+  s += arrow(cx, 751, cx, 783);
+  s += box({ x: bx, y: 783, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size', go: ['linear', '384,vocab_size,1', 'lm_head'], help: 'lm_head' });
+  s += arrow(cx, 831, cx, 863);
+  s += box({ x: bx, y: 863, w: bw, h: 50, title: 'logits', sub: '(T, vocab_size)', help: 'logits' });
+  return { viewBox: '90 0 620 933', svg: s };
 };
 
 const block = () => {
@@ -50,7 +50,7 @@ const block = () => {
   s += residual(355, 590);
   s += arrow(cx, 608, cx, 640);
   s += box({ x: bx, y: 640, w, h: 50, title: 'x', sub: '(T, 384)' });
-  return { viewBox: '0 0 840 710', svg: s };
+  return { viewBox: '120 0 470 710', svg: s };
 };
 
 const mha = () => {
@@ -68,7 +68,7 @@ const mha = () => {
   s += box({ x: cx - 200, y: 390, w: 400, h: 50, kind: 'op', title: 'proj', sub: 'Linear 384 → 384', go: ['linear', '384,384,1', 'proj'], help: 'proj' });
   s += arrow(cx, 440, cx, 470);
   s += box({ x: cx - 200, y: 470, w: 400, h: 50, title: 'output', sub: '(T, 384)' });
-  return { viewBox: '0 0 900 540', svg: s };
+  return { viewBox: '20 0 860 540', svg: s };
 };
 
 const ffwd = () => {
@@ -82,7 +82,7 @@ const ffwd = () => {
   s += trap({ x: cx - 240, y: 318, topW: 480, botW: 300, h: 90, title: 'Linear', sub: `${c.ffHidden} → 384`, go: ['linear', `${c.ffHidden},384,1`, 'Linear 2'], help: 'ffwd shrink' });
   s += arrow(cx, 408, cx, 448);
   s += box({ x: cx - 150, y: 448, w: 300, h: 50, title: 'output', sub: '(T, 384)' });
-  return { viewBox: '0 0 800 520', svg: s };
+  return { viewBox: '140 0 520 520', svg: s };
 };
 
 const shades = ['#9283e0', '#8577d0', '#6f62ab', '#5f5496', '#6a5da4'];

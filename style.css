@@ -212,3 +212,7 @@ main.scroll {
 .band { fill: rgba(10, 160, 224, 0.18); }
 .zero { stroke: var(--slate-line); stroke-width: 1; }
 .meanline { stroke: var(--cyan); stroke-width: 2; stroke-dasharray: 6 4; }
+
+.residual { fill: none; stroke: var(--cyan); stroke-width: 4; }
+.residual-head { fill: var(--cyan); }
+.hit { fill: none; stroke: transparent; stroke-width: 28; pointer-events: stroke; }

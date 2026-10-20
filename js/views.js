@@ -26,6 +26,13 @@ const model = () => {
 
 const block = () => {
   const cx = 420, w = 300, bx = cx - w / 2, rx = 180;
+  const residual = (y1, y2) => {
+    const d = `M${cx} ${y1} H${rx} V${y2} H${cx - 18}`, mid = (y1 + y2) / 2;
+    return `<g data-help="residual"><path class="hit" d="${d}"/><path class="residual" d="${d}"/>` +
+      `<circle class="residual-head" cx="${cx}" cy="${y1}" r="5"/>` +
+      `<polygon class="residual-head" points="${cx - 18},${y2} ${cx - 31},${y2 - 8} ${cx - 31},${y2 + 8}"/>` +
+      `<text class="title cyan-text" x="${rx - 26}" y="${mid}" transform="rotate(-90 ${rx - 26} ${mid})">residual connection</text></g>`;
+  };
   let s = box({ x: bx, y: 20, w, h: 50, title: 'x', sub: '(T, 384)' });
   s += arrow(cx, 70, cx, 110);
   s += box({ x: bx, y: 110, w, h: 48, kind: 'op', title: 'ln1', sub: 'LayerNorm', go: ['layernorm', null, 'ln1'], help: 'LayerNorm' });
@@ -33,15 +40,14 @@ const block = () => {
   s += box({ x: bx, y: 200, w, h: 60, kind: 'op', title: 'MultiHeadAttention', sub: `${c.nHead} heads`, go: ['mha', null, 'MultiHeadAttention'] });
   s += arrow(cx, 260, cx, 302);
   s += circle(cx, 320, '+');
-  s += path(`M${cx} 90 H${rx} V320 H${cx - 18}`) + arrow(rx, 320, cx - 18, 320);
+  s += residual(90, 320);
   s += arrow(cx, 338, cx, 380);
   s += box({ x: bx, y: 380, w, h: 48, kind: 'op', title: 'ln2', sub: 'LayerNorm', go: ['layernorm', null, 'ln2'], help: 'LayerNorm' });
   s += arrow(cx, 428, cx, 470);
   s += box({ x: bx, y: 470, w, h: 60, kind: 'op', title: 'FeedForward', sub: `384 → ${c.ffHidden} → 384`, go: ['ffwd', null, 'FeedForward'], help: 'FeedForward' });
   s += arrow(cx, 530, cx, 572);
   s += circle(cx, 590, '+');
-  s += path(`M${cx} 355 H${rx} V590 H${cx - 18}`) + arrow(rx, 590, cx - 18, 590);
-  s += text(rx - 20, 455, 'residual');
+  s += residual(355, 590);
   s += arrow(cx, 608, cx, 640);
   s += box({ x: bx, y: 640, w, h: 50, title: 'x', sub: '(T, 384)' });
   return { viewBox: '0 0 840 710', svg: s };

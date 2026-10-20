@@ -78,11 +78,18 @@ export const help = {
   ],
   'ReLU': [
     'ReLU keeps every positive number as it is and replaces every negative number with 0.',
+    'x = max(0, x)',
     'Without it, the two Linear layers would collapse into a single one. ReLU is the non-linearity that lets the network learn more complex patterns.',
   ],
   'ffwd shrink': [
     'The second Linear layer compresses the 1536 numbers back to 384.',
     'The output has the same size as the input, so it can be added back to the residual stream.',
     'Click to see its weight matrix.',
+  ],
+  'residual': [
+    'The residual connection (also called skip connection) adds the input of a step directly to its output: x = x + step(x).',
+    'So a step does not have to rebuild the whole vector. It only learns what to add to it, and the original information always flows through unchanged.',
+    'It also lets the training signal flow straight through all 6 blocks, which makes deep networks much easier to train.',
+    'Every block has two of them: one around attention and one around the feed-forward network.',
   ],
 };

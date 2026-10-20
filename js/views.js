@@ -3,7 +3,7 @@ import { box, trap, circle, arrow, path, text } from './svg.js';
 
 const model = () => {
   const cx = 400, bw = 360, bx = cx - bw / 2;
-  let s = box({ x: bx, y: 20, w: bw, h: 50, title: 'token indices', sub: '(B, T)' });
+  let s = box({ x: bx, y: 20, w: bw, h: 50, title: 'token indices', sub: '(T)' });
   s += arrow(cx, 70, 290, 110) + arrow(cx, 70, 550, 110);
   s += box({ x: 110, y: 110, w: 270, h: 64, kind: 'op', title: 'token embedding', sub: 'vocab_size → 384' });
   s += box({ x: 420, y: 110, w: 270, h: 64, kind: 'op', title: 'position embedding', sub: '256 → 384' });
@@ -18,15 +18,15 @@ const model = () => {
   s += arrow(cx, 625, cx, 655);
   s += box({ x: bx, y: 655, w: bw, h: 48, kind: 'op', title: 'ln_f', sub: 'final LayerNorm' });
   s += arrow(cx, 703, cx, 735);
-  s += box({ x: bx, y: 735, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size' });
+  s += box({ x: bx, y: 735, w: bw, h: 48, kind: 'op', title: 'lm_head', sub: 'Linear 384 → vocab_size', go: ['linear', '384,vocab_size,1', 'lm_head'] });
   s += arrow(cx, 783, cx, 815);
-  s += box({ x: bx, y: 815, w: bw, h: 50, title: 'logits', sub: '(B, T, vocab_size)' });
+  s += box({ x: bx, y: 815, w: bw, h: 50, title: 'logits', sub: '(T, vocab_size)' });
   return { viewBox: '0 0 800 885', svg: s };
 };
 
 const block = () => {
   const cx = 420, w = 300, bx = cx - w / 2, rx = 180;
-  let s = box({ x: bx, y: 20, w, h: 50, title: 'x', sub: '(B, T, 384)' });
+  let s = box({ x: bx, y: 20, w, h: 50, title: 'x', sub: '(T, 384)' });
   s += arrow(cx, 70, cx, 110);
   s += box({ x: bx, y: 110, w, h: 48, kind: 'op', title: 'ln1', sub: 'LayerNorm' });
   s += arrow(cx, 158, cx, 200);
@@ -43,14 +43,14 @@ const block = () => {
   s += path(`M${cx} 355 H${rx} V590 H${cx - 18}`) + arrow(rx, 590, cx - 18, 590);
   s += text(rx - 20, 455, 'residual');
   s += arrow(cx, 608, cx, 640);
-  s += box({ x: bx, y: 640, w, h: 50, title: 'x', sub: '(B, T, 384)' });
+  s += box({ x: bx, y: 640, w, h: 50, title: 'x', sub: '(T, 384)' });
   return { viewBox: '0 0 840 710', svg: s };
 };
 
 const mha = () => {
   const hw = 120, gap = 20, x0 = 40, total = c.nHead * hw + (c.nHead - 1) * gap;
   const cx = x0 + total / 2;
-  let s = box({ x: x0, y: 20, w: total, h: 50, title: 'x', sub: '(B, T, 384)' });
+  let s = box({ x: x0, y: 20, w: total, h: 50, title: 'x', sub: '(T, 384)' });
   for (let i = 0; i < c.nHead; i++) {
     const x = x0 + i * (hw + gap), hc = x + hw / 2;
     s += arrow(cx, 70, hc, 150);
@@ -59,28 +59,24 @@ const mha = () => {
   }
   s += box({ x: x0, y: 300, w: total, h: 50, title: 'concat', sub: `${c.nHead} × ${c.headSize} = ${c.nEmbd}` });
   s += arrow(cx, 350, cx, 390);
-  s += box({ x: cx - 200, y: 390, w: 400, h: 50, kind: 'op', title: 'proj', sub: 'Linear 384 → 384' });
+  s += box({ x: cx - 200, y: 390, w: 400, h: 50, kind: 'op', title: 'proj', sub: 'Linear 384 → 384', go: ['linear', '384,384,1', 'proj'] });
   s += arrow(cx, 440, cx, 470);
-  s += box({ x: cx - 200, y: 470, w: 400, h: 44, kind: 'op', title: 'Dropout' });
-  s += arrow(cx, 514, cx, 545);
-  s += box({ x: cx - 200, y: 545, w: 400, h: 50, title: 'output', sub: '(B, T, 384)' });
-  return { viewBox: '0 0 900 620', svg: s };
+  s += box({ x: cx - 200, y: 470, w: 400, h: 50, title: 'output', sub: '(T, 384)' });
+  return { viewBox: '0 0 900 540', svg: s };
 };
 
 const ffwd = () => {
   const cx = 400;
-  let s = box({ x: cx - 150, y: 20, w: 300, h: 50, title: 'x', sub: '(B, T, 384)' });
+  let s = box({ x: cx - 150, y: 20, w: 300, h: 50, title: 'x', sub: '(T, 384)' });
   s += arrow(cx, 70, cx, 100);
-  s += trap({ x: cx - 240, y: 100, topW: 300, botW: 480, h: 90, title: 'Linear', sub: `384 → ${c.ffHidden}` });
+  s += trap({ x: cx - 240, y: 100, topW: 300, botW: 480, h: 90, title: 'Linear', sub: `384 → ${c.ffHidden}`, go: ['linear', `384,${c.ffHidden},1`, 'Linear 1'] });
   s += arrow(cx, 190, cx, 230);
   s += box({ x: cx - 240, y: 230, w: 480, h: 48, kind: 'op', title: 'ReLU' });
   s += arrow(cx, 278, cx, 318);
-  s += trap({ x: cx - 240, y: 318, topW: 480, botW: 300, h: 90, title: 'Linear', sub: `${c.ffHidden} → 384` });
+  s += trap({ x: cx - 240, y: 318, topW: 480, botW: 300, h: 90, title: 'Linear', sub: `${c.ffHidden} → 384`, go: ['linear', `${c.ffHidden},384,1`, 'Linear 2'] });
   s += arrow(cx, 408, cx, 448);
-  s += box({ x: cx - 150, y: 448, w: 300, h: 44, kind: 'op', title: 'Dropout' });
-  s += arrow(cx, 492, cx, 525);
-  s += box({ x: cx - 150, y: 525, w: 300, h: 50, title: 'output', sub: '(B, T, 384)' });
-  return { viewBox: '0 0 800 600', svg: s };
+  s += box({ x: cx - 150, y: 448, w: 300, h: 50, title: 'output', sub: '(T, 384)' });
+  return { viewBox: '0 0 800 520', svg: s };
 };
 
 const shades = ['#9283e0', '#8577d0', '#6f62ab', '#5f5496', '#6a5da4'];
@@ -89,51 +85,101 @@ const triMatrix = (x, y) => {
   let s = `<rect class="matrix" x="${x}" y="${y}" width="340" height="340" rx="10"/>`;
   for (let i = 0; i < 8; i++)
     for (let j = 0; j <= i; j++)
-      s += `<rect x="${x + 12 + j * 40}" y="${y + 13 + i * 40}" width="35" height="35" rx="4" fill="${shades[(i * 7 + j * 13 + (i === j ? 0 : 1)) % 5]}"/>`;
+      s += `<rect x="${x + 13 + j * 40}" y="${y + 13 + i * 40}" width="34" height="34" rx="4" fill="${shades[(i * 7 + j * 13 + (i === j ? 0 : 1)) % 5]}"/>`;
   return s;
 };
 
 const rot = (cx, cy, deg, cls, str) =>
   `<text class="${cls}" x="${cx}" y="${cy}" transform="rotate(${deg} ${cx} ${cy})">${str}</text>`;
 
+const poly = (pts) => `<polygon class="op" points="${pts.map((p) => p.join(',')).join(' ')}"/>`;
+
 const head = () => {
+  const cx = 570, mx = 400, m1y = 332, m2y = 860, hs = c.headSize, e = c.nEmbd;
   let s = '<g class="big">';
-  s += `<rect class="data" x="480" y="145" width="768" height="107" rx="12"/>`;
-  s += text(864, 190, 'T embeddings', 'title') + text(864, 225, `each ${c.nEmbd} numbers`, 'sub');
 
-  s += trap({ x: 482, y: 271, topW: 764, botW: 503, h: 190, title: 'key matrix', sub: `${c.nEmbd} → ${c.headSize}` });
-  s += `<rect class="cyan-box" x="625" y="470" width="480" height="38"/>`;
-  s += text(865, 490, `T times a vector with ${c.headSize} values (key vector)`, 'sub cyan-text');
+  s += `<rect class="data" x="250" y="30" width="640" height="70" rx="12"/>`;
+  s += text(cx, 56, 'T embeddings', 'title') + text(cx, 84, `each ${e} numbers`, 'sub');
+  s += `<g class="link" data-view="linear" data-arg="${e},${hs},0" data-label="Key matrix">`;
+  s += arrow(cx, 100, cx, 118);
+  s += poly([[250, 120], [890, 120], [740, 270], [400, 270]]);
+  s += '</g>';
+  s += text(cx, 168, 'key matrix', 'title') + text(cx, 200, `${e} → ${hs}`, 'sub') + text(cx, 232, `T times ${hs} values`, 'sub teal');
+  s += `<rect class="cyan-box" x="${mx}" y="280" width="340" height="40"/>`;
+  s += text(cx, 300, 'key vector', 'sub cyan-text');
 
-  s += triMatrix(730, 517);
-  s += text(900, 890, 'attention weights', 'title');
-  s += text(900, 922, 'q•k = TxT → mask → softmax', 'sub');
+  s += triMatrix(mx, m1y);
+  s += text(cx, 706, 'attention weights', 'title');
+  s += text(cx, 738, 'q•k = TxT → mask → softmax', 'sub');
 
-  s += `<polygon class="op" points="1135,487 1325,380 1325,928 1135,828"/>`;
-  s += text(1229, 650, 'query', 'title') + text(1229, 680, 'matrix', 'title') + text(1229, 710, `${c.nEmbd} → ${c.headSize}`, 'sub');
-  s += text(1229, 765, 'T times', 'sub teal') + text(1229, 795, `${c.headSize} values`, 'sub teal');
-  s += `<rect class="cyan-box" x="1083" y="519" width="40" height="305"/>`;
-  s += rot(1103, 672, 90, 'sub cyan-text', 'query vector');
-  s += `<rect class="data" x="1355" y="265" width="107" height="768" rx="12"/>`;
-  s += rot(1408, 650, 90, 'title', 'T embeddings') + rot(1382, 650, 90, 'sub', `${c.nEmbd} numbers`);
+  s += `<rect class="cyan-box" x="752" y="${m1y}" width="40" height="340"/>`;
+  s += rot(772, 502, 90, 'sub cyan-text', 'query vector');
+  s += `<g class="link" data-view="linear" data-arg="${e},${hs},0" data-label="Query matrix">`;
+  s += poly([[804, 332], [954, 182], [954, 822], [804, 672]]);
+  s += text(889, 440, 'query', 'title') + text(889, 472, 'matrix', 'title') + text(889, 506, `${e} → ${hs}`, 'sub');
+  s += text(889, 556, 'T times', 'sub teal') + text(889, 584, `${hs} values`, 'sub teal');
+  s += '</g>';
+  s += arrow(984, 502, 956, 502);
+  s += `<rect class="data" x="984" y="182" width="70" height="640" rx="12"/>`;
+  s += rot(1030, 502, 90, 'title', 'T embeddings') + rot(1004, 502, 90, 'sub', `each ${e} numbers`);
 
-  s += arrow(885, 960, 885, 1030);
+  s += arrow(cx, 770, cx, 840);
 
-  s += `<polygon class="op" points="566,1033 756,1094 756,1343 566,1403"/>`;
-  s += text(661, 1182, 'value', 'title') + text(661, 1211, 'matrix', 'title') + text(661, 1244, `${c.nEmbd} → ${c.headSize}`, 'sub');
-  s += text(661, 1289, 'T times', 'sub teal') + text(661, 1321, `${c.headSize} values`, 'sub teal');
-  s += `<rect class="cyan-box" x="769" y="1090" width="40" height="250"/>`;
-  s += rot(789, 1215, 90, 'sub cyan-text', 'value vector');
-  s += `<rect class="data" x="433" y="850" width="107" height="768" rx="12"/>`;
-  s += rot(487, 1234, -90, 'title', 'T embeddings') + rot(513, 1234, -90, 'sub', `${c.nEmbd} numbers`);
+  s += `<rect class="cyan-box" x="348" y="${m2y}" width="40" height="340"/>`;
+  s += rot(368, 1030, 90, 'sub cyan-text', 'value vector');
+  s += `<g class="link" data-view="linear" data-arg="${e},${hs},0" data-label="Value matrix">`;
+  s += poly([[336, 860], [186, 710], [186, 1350], [336, 1200]]);
+  s += text(251, 968, 'value', 'title') + text(251, 1000, 'matrix', 'title') + text(251, 1034, `${e} → ${hs}`, 'sub');
+  s += text(251, 1084, 'T times', 'sub teal') + text(251, 1112, `${hs} values`, 'sub teal');
+  s += '</g>';
+  s += arrow(156, 1030, 184, 1030);
+  s += `<rect class="data" x="86" y="710" width="70" height="640" rx="12"/>`;
+  s += rot(132, 1030, -90, 'title', 'T embeddings') + rot(106, 1030, -90, 'sub', `each ${e} numbers`);
 
-  s += triMatrix(831, 1046);
-  s += text(858, 1413, 'weights @ v', 'sub');
-  s += text(910, 1445, 'attention matrix multiplication with value vector', 'sub teal');
+  s += triMatrix(mx, m2y);
+  s += text(cx, 1234, 'weights @ v', 'title');
+  s += text(cx, 1266, 'attention matrix multiplication', 'sub teal') + text(cx, 1294, 'with value vector', 'sub teal');
+  s += arrow(cx, 1308, cx, 1338);
 
-  s += `<rect class="op" x="651" y="1520" width="340" height="78" rx="12"/>`;
-  s += text(821, 1545, 'output', 'title') + text(821, 1578, `T times ${c.headSize} values`, 'sub teal');
-  return { viewBox: '400 120 1100 1520', svg: s + '</g>' };
+  s += `<rect class="data" x="${mx}" y="1340" width="340" height="80" rx="12"/>`;
+  s += text(cx, 1366, 'output', 'title') + text(cx, 1398, `T times ${hs} values`, 'sub teal');
+  return { viewBox: '60 0 1020 1450', svg: s + '</g>' };
 };
 
-export const views = { model, block, mha, ffwd, head };
+const dim = (v) => Math.min(460, Math.max(60, (Number(v) || 65) * 0.3));
+
+const cells = (x, y, w, h) =>
+  `<rect class="matrix" x="${x}" y="${y}" width="${w}" height="${h}" rx="8"/>` +
+  `<rect x="${x + 4}" y="${y + 4}" width="${w - 8}" height="${h - 8}" fill="url(#cells)"/>`;
+
+const linear = (arg) => {
+  const [i, o, bias] = arg.split(',');
+  const wIn = dim(i), wOut = dim(o), H = 160, gap = 80, pad = 50;
+  const hMax = Math.max(H, wIn), cy = 110 + hMax / 2;
+  const parts = [
+    { w: wIn, h: H, name: 'x', dims: `T × ${i}` },
+    { op: '×' },
+    { w: wOut, h: wIn, name: 'weight matrix W', dims: `${i} × ${o}` },
+    ...(bias === '1' ? [{ op: '+' }, { w: wOut, h: 20, name: 'bias b', dims: `1 × ${o}` }] : []),
+    { op: '=' },
+    { w: wOut, h: H, name: 'y', dims: `T × ${o}` },
+  ];
+  let s = `<defs><pattern id="cells" width="20" height="20" patternUnits="userSpaceOnUse"><rect x="1" y="1" width="18" height="18" rx="3" fill="#6f62ab"/></pattern></defs><g class="big">`;
+  let x = pad;
+  for (const p of parts) {
+    if (p.op) {
+      s += text(x + gap / 2, cy, p.op, 'title');
+      x += gap;
+      continue;
+    }
+    s += cells(x, cy - p.h / 2, p.w, p.h);
+    s += text(x + p.w / 2, cy - p.h / 2 - 24, p.name, 'title');
+    s += text(x + p.w / 2, cy + p.h / 2 + 28, p.dims, 'sub teal');
+    x += p.w;
+  }
+  const bottom = cy + hMax / 2 + 100;
+  s += text((x + pad) / 2, bottom, bias === '1' ? 'y = x · W + b     (b is added to every row)' : 'y = x · W     (no bias)', 'title');
+  return { viewBox: `0 0 ${x + pad} ${bottom + 40}`, svg: s + '</g>' };
+};
+
+export const views = { model, block, mha, ffwd, head, linear };
